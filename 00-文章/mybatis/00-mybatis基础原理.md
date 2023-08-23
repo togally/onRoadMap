@@ -9,17 +9,27 @@
 
 ## 解析注册流程
 ![解析以及注册流程](../img/解析以及注册流程.png)
-首先是解析的步骤，系统会调用Resources类下的方法getResourceAsReader获取mapper.xml的读取类。
+首先当我们去构建sqlSessionFactory的时候，也就是调用SqlSessionFactory.build(Reader)方法时
 
-然后作为构造函数入参，去构造XmlConfigBuilder类，并调用parse()方法解析
+系统会调用Resources类下的方法getResourceAsReader获取mapper.xml的读取类，并生成reader
+
+然后build方法内部会去实例化XmlConfigBuilder类，并调用parse()方法执行解析
 
 解析时会去读取在xml中所定义的包路径地址，并调用MapperRegistry也就是mapper注册器的addMappers
 
 注册器会去扫描包路径，将路径下的mapper生成对应的MapperProxyFactory并注册到注册器中
 
+当我们完成注册之后就会利用解析完成后的Configuration配置去构造一个SqlSessionFactory
+
 ## 使用流程
 ![mapper调用流程](../img/mapper调用流程.png)
-整个过程实际上是基于代理的，spring注入的mapper对象是代理对象，每个mapper接口文件都有一个MapperProxyFactory,是在解析时候注册到MapperRegistry中的
+整个过程实际上是基于代理的
+
+使用的前提时需要构造好sqlSessionFactory对象
+
+接着我们就可以利用sqlSessionFactory去开启一个session，并获取到对象mapper的代理类
+
+每个mapper接口文件都有一个MapperProxyFactory,是在解析时候注册到MapperRegistry中的
 
 Proxy中中包装了MapperMethod，执行invoke方法方法时会调用MapperMethod 的execute方法
 
